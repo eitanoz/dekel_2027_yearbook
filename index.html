@@ -346,6 +346,14 @@
 
     <!-- TAB 4: POLLS -->
     <section id="tab-polls" class="tab-panel">
+      <div class="card" style="margin-bottom:18px;">
+        <h3>➕ יצירת שאלה חדשה לסקר הכי-הכי</h3>
+        <div style="display:grid; gap:10px; margin-bottom:10px;">
+          <input type="text" id="newPollQuestionInput" placeholder="שאלת הסקר (למשל: מי הכי מצחיק/ה בכיתה?)" style="padding:10px; border:1px solid var(--border); border-radius:10px;" />
+          <input type="text" id="newPollOptionsInput" placeholder="אפשרויות מופרדות בפסיק (למשל: שירה, אדם אוזל, הראל מונטג')" style="padding:10px; border:1px solid var(--border); border-radius:10px;" />
+        </div>
+        <button class="btn-sm btn-primary" style="width:auto;" onclick="createNewPoll()">פרסם שאלה לסקר 🏆</button>
+      </div>
       <div class="grid-2" id="pollsGrid"></div>
     </section>
 
@@ -569,6 +577,29 @@ function doPost(e) {
     const sh = ss.getSheetByName(payload.tab);
     if (sh) sh.appendRow(payload.row);
     return jsonOut({ ok: true });
+  }
+
+  if (payload.action === 'votePoll') {
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+      const sh = ss.getSheetByName('Polls');
+      if (!sh) return jsonOut({ ok: false, error: 'Polls tab missing' });
+      const rows = sh.getDataRange().getValues();
+      for (let i = 1; i < rows.length; i++) {
+        if (String(rows[i][0]) === String(payload.pollId)) {
+          const opts = JSON.parse(rows[i][2] || '[]');
+          if (opts[payload.optIdx]) {
+            opts[payload.optIdx].votes = (Number(opts[payload.optIdx].votes) || 0) + 1;
+            sh.getRange(i + 1, 3).setValue(JSON.stringify(opts));
+            return jsonOut({ ok: true, options: opts });
+          }
+        }
+      }
+      return jsonOut({ ok: false, error: 'Poll not found' });
+    } finally {
+      lock.releaseLock();
+    }
   }
 
   return jsonOut({ ok: false, error: 'Unknown action' });
@@ -1014,29 +1045,88 @@ function jsonOut(obj) {
     function renderPolls() {
       const grid = document.getElementById("pollsGrid");
       if (!state.polls || !state.polls.length) {
-        grid.innerHTML = `<div class="card"><p style="color:var(--muted);">אין כרגע סקרים פעילים.</p></div>`;
+        grid.innerHTML = `<div class="card"><p style="color:var(--muted);">אין כרגע סקרים פעילים — צרו שאלה חדשה למעלה!</p></div>`;
         return;
       }
-      grid.innerHTML = state.polls.map(p => `
-        <div class="card">
-          <h3>🏆 ${escapeHtml(p.question)}</h3>
-          ${p.options.map((opt, idx) => `
-            <div class="poll-option">
-              <span><strong>${escapeHtml(opt.label)}</strong> (${opt.votes} קולות)</span>
-              <button onclick="votePoll('${p.id}', ${idx})">הצבע +1</button>
-            </div>
-          `).join("")}
-        </div>
-      `).join("");
+      const votedMap = JSON.parse(safeGetStorage("dekel_voted_polls") || "{}");
+      grid.innerHTML = state.polls.map(p => {
+        const totalVotes = p.options.reduce((sum, o) => sum + (Number(o.votes) || 0), 0);
+        const hasVoted = votedMap[p.id] !== undefined;
+        return `
+          <div class="card">
+            <h3>🏆 ${escapeHtml(p.question)}</h3>
+            ${p.options.map((opt, idx) => {
+              const votes = Number(opt.votes) || 0;
+              const pct = totalVotes ? Math.round((votes / totalVotes) * 100) : 0;
+              const isMyPick = votedMap[p.id] === idx;
+              return `
+                <div class="poll-option" style="${isMyPick ? 'border-color:var(--primary-light); background:#eff6ff;' : ''}">
+                  <div style="flex:1; margin-left:10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:4px;">
+                      <strong>${escapeHtml(opt.label)} ${isMyPick ? '✓' : ''}</strong>
+                      <span style="color:var(--muted);">${votes} קולות (${pct}%)</span>
+                    </div>
+                    <div style="height:6px; background:#e2e8f0; border-radius:999px; overflow:hidden;">
+                      <div style="height:100%; width:${pct}%; background:var(--primary-light); transition:width 0.3s ease;"></div>
+                    </div>
+                  </div>
+                  <button onclick="votePoll('${p.id}', ${idx})" ${hasVoted ? 'disabled style="opacity:0.55; cursor:default;"' : ''}>
+                    ${hasVoted ? (isMyPick ? 'הצבעת' : 'הוצבע') : 'הצבע +1'}
+                  </button>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }).join("");
     }
 
-    function votePoll(pollId, optIdx) {
+    async function votePoll(pollId, optIdx) {
+      const votedMap = JSON.parse(safeGetStorage("dekel_voted_polls") || "{}");
+      if (votedMap[pollId] !== undefined) return;
       const p = state.polls.find(x => x.id === pollId);
-      if (p && p.options[optIdx]) {
-        p.options[optIdx].votes += 1;
-        saveState();
-        renderPolls();
-      }
+      if (!p || !p.options[optIdx]) return;
+
+      votedMap[pollId] = optIdx;
+      safeSetStorage("dekel_voted_polls", JSON.stringify(votedMap));
+      p.options[optIdx].votes = (Number(p.options[optIdx].votes) || 0) + 1;
+      saveState();
+      renderPolls();
+
+      const url = getGasUrl();
+      if (!url) return;
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          body: JSON.stringify({ action: "votePoll", pollId, optIdx })
+        });
+        const json = await res.json();
+        if (json.ok && json.options) {
+          p.options = json.options;
+          saveState();
+          renderPolls();
+        }
+      } catch (e) {}
+    }
+
+    function createNewPoll() {
+      const q = document.getElementById("newPollQuestionInput").value.trim();
+      const rawOpts = document.getElementById("newPollOptionsInput").value.trim();
+      if (!q || !rawOpts) return alert("אנא מלאו שאלה ואפשרויות מופרדות בפסיק.");
+      const labels = rawOpts.split(",").map(s => s.trim()).filter(Boolean);
+      if (labels.length < 2) return alert("יש להזין לפחות 2 אפשרויות.");
+      const item = {
+        id: "p_" + Date.now(),
+        question: q,
+        options: labels.map(label => ({ label, votes: 0 }))
+      };
+      state.polls.push(item);
+      saveState();
+      document.getElementById("newPollQuestionInput").value = "";
+      document.getElementById("newPollOptionsInput").value = "";
+      renderPolls();
+      appendToSheet("Polls", [item.id, item.question, JSON.stringify(item.options)]);
+      showBanner("✅ שאלת הסקר נוספה וסונכרנה עם Google Sheets!");
     }
 
     function renderWall() {
