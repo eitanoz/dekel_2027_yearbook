@@ -456,7 +456,7 @@
 
     const CLASS_PASS = "DEKEL2027";
     const ADMIN_PASS = "eo1976";
-    const STORAGE_KEY = "dekel_vav2_yearbook_v5";
+    const STORAGE_KEY = "dekel_vav2_yearbook_v6";
     const AUTH_KEY = "dekel_vav2_auth_v5";
 
     const INITIAL_STUDENTS = [
@@ -511,12 +511,7 @@
         { id: "m1", title: "הטיול השנתי של שכבת ו'", date: "אביב תשפ\"ז", desc: "מסלולים, צחוקים באוטובוס, ערב הווי בלתי נשכח וגיבוש כיתתי מדהים!", likes: 18 },
         { id: "m2", title: "יום ספורט והפסקות פעילות בדקל", date: "תשפ\"ז", desc: "כיתה ו'2 מעודדת בקולי קולות ומובילה ברוח ספורטיבית אמיתית.", likes: 15 }
       ],
-      polls: [
-        { id: "p1", question: "מי הכי מצחיק/ה בכיתה?", options: [{ label: "הראל מונטג'", votes: 4 }, { label: "אדם אוזל", votes: 4 }, { label: "גפן אופק אהרון", votes: 4 }] },
-        { id: "p2", question: "מי יהיה/תהיה מפורסם/ת יום אחד?", options: [{ label: "שירה", votes: 5 }, { label: "אריאל קשביץ", votes: 4 }, { label: "נגה לונדון", votes: 4 }] },
-        { id: "p3", question: "מי תמיד עוזר/ת לכולם?", options: [{ label: "ליהי אוזל", votes: 5 }, { label: "תמר רונה לב", votes: 4 }, { label: "איתן", votes: 4 }] },
-        { id: "p4", question: "אלוף/ת הספורט של ו'2?", options: [{ label: "אברהם אידי", votes: 5 }, { label: "אורייאן", votes: 4 }, { label: "רתם", votes: 4 }] }
-      ],
+      polls: [],
       signatures: [
         { id: "w1", author: "ענבל", role: "מחנכת ו'2 ומנהלת בית הספר", color: "note-yellow", text: "כיתה ו'2 אלופים שלי — תודה על שנה מרגשת ובלתי נשכחת! 👑" },
         { id: "w2", author: "ועד ההורים ו'2", role: "הורי הכיתה", color: "note-blue", text: "גאים בכם ילדים אהובים! בהצלחה בדרך החדשה בחטיבה 🎓" }
@@ -1018,6 +1013,10 @@ function jsonOut(obj) {
 
     function renderPolls() {
       const grid = document.getElementById("pollsGrid");
+      if (!state.polls || !state.polls.length) {
+        grid.innerHTML = `<div class="card"><p style="color:var(--muted);">אין כרגע סקרים פעילים.</p></div>`;
+        return;
+      }
       grid.innerHTML = state.polls.map(p => `
         <div class="card">
           <h3>🏆 ${escapeHtml(p.question)}</h3>
@@ -1147,6 +1146,13 @@ function jsonOut(obj) {
         if (d.Teachers && d.Teachers.length) state.teachers = d.Teachers.slice().reverse();
         if (d.Memories && d.Memories.length) state.memories = d.Memories.slice().reverse();
         if (d.Signatures && d.Signatures.length) state.signatures = d.Signatures.slice().reverse();
+        if (d.Polls) {
+          state.polls = d.Polls.map(p => ({
+            id: p.id,
+            question: p.question,
+            options: JSON.parse(p.optionsJson || "[]")
+          }));
+        }
         saveState();
         populateLoginDropdown();
         renderAll();
