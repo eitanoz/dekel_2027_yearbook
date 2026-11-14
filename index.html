@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ספר מחזור דיגיטלי - כיתה ו'2 | בית ספר דקל רעננה (תשפ"ז)</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --accent: #f59e0b;
+      --accent-soft: #fef3c7;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius: 16px;
+      --shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+    body { background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
+    button, input, textarea, select { font-family: inherit; }
+    button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; transition: all 0.18s ease; }
+    button:active { transform: scale(0.98); }
+
+    /* Lock Screen */
+    #loginScreen {
+      position: fixed; inset: 0; z-index: 1000;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    #loginScreen.hidden { display: none; }
+    .login-card {
+      background: #fff; border-radius: 24px; max-width: 430px; width: 100%;
+      padding: 32px 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.35); text-align: center;
+    }
+    .login-emblem {
+      width: 78px; height: 78px; border-radius: 50%; margin: 0 auto 14px;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 3px solid var(--accent);
+      display: flex; align-items: center; justify-content: center; font-size: 34px; overflow: hidden;
+    }
+    .login-emblem img { width: 100%; height: 100%; object-fit: cover; }
+    .login-card h1 { font-size: 1.45rem; color: var(--primary); margin-bottom: 4px; }
+    .login-card p.sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 20px; }
+    .field-group { text-align: right; margin-bottom: 14px; }
+    .field-group label { display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 5px; }
+    .field-group select, .field-group input {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 12px;
+      font-size: 0.98rem; background: #f8fafc; outline: none;
+    }
+    .field-group select:focus, .field-group input:focus { border-color: var(--primary-light); background: #fff; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff; padding: 12px 20px; font-size: 1rem; width: 100%;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:hover { filter: brightness(1.06); }
+    .error-msg { color: var(--danger); font-size: 0.86rem; font-weight: 600; margin-top: 8px; min-height: 20px; }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #1d4ed8 100%);
+      color: #fff; padding: 20px 16px 16px; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 4px 20px rgba(15,23,42,0.18);
+    }
+    .header-inner {
+      max-width: 1180px; margin: 0 auto; display: flex; flex-wrap: wrap;
+      align-items: center; justify-content: space-between; gap: 14px;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .school-logo-btn {
+      width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.14);
+      border: 2.5px solid var(--accent); display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #fff; overflow: hidden; flex-shrink: 0; position: relative;
+    }
+    .school-logo-btn img { width: 100%; height: 100%; object-fit: cover; }
+    .school-logo-btn span.hint {
+      position: absolute; bottom: 0; inset-inline: 0; background: rgba(0,0,0,0.65);
+      font-size: 9px; padding: 1px 0; text-align: center;
+    }
+    .brand-text h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.2px; }
+    .brand-text .subtitle { font-size: 0.88rem; color: #cbd5e1; margin-top: 2px; }
+    .user-pill {
+      display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12);
+      padding: 7px 12px; border-radius: 999px; font-size: 0.85rem; backdrop-filter: blur(6px);
+    }
+    .badge-gold { background: var(--accent); color: #0f172a; padding: 2px 8px; border-radius: 999px; font-weight: 800; font-size: 0.76rem; }
+    .btn-ghost-light { background: rgba(255,255,255,0.18); color: #fff; padding: 5px 10px; font-size: 0.8rem; border-radius: 8px; }
+    .btn-ghost-light:hover { background: rgba(255,255,255,0.28); }
+
+    /* Nav Tabs */
+    .nav-wrap { max-width: 1180px; margin: 14px auto 0; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .tab-btn {
+      background: rgba(255,255,255,0.12); color: #e2e8f0; padding: 9px 15px;
+      border-radius: 12px; font-size: 0.9rem; white-space: nowrap; display: flex; align-items: center; gap: 6px;
+    }
+    .tab-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+    .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    /* Container */
+    main { max-width: 1180px; margin: 22px auto 60px; padding: 0 16px; }
+    .tab-panel { display: none; animation: fadeIn 0.22s ease; }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+      background: var(--card); padding: 14px 16px; border-radius: var(--radius);
+      box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border);
+    }
+    .search-box { flex: 1; min-width: 220px; position: relative; }
+    .search-box input {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 11px;
+      font-size: 0.94rem; outline: none;
+    }
+    .search-box input:focus { border-color: var(--primary-light); }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip {
+      background: #f1f5f9; color: #334155; padding: 6px 12px; border-radius: 999px; font-size: 0.82rem;
+    }
+    .chip.active { background: var(--primary); color: #fff; }
+
+    /* Students Grid */
+    .students-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 16px;
+    }
+    .student-card {
+      background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);
+      padding: 18px; box-shadow: var(--shadow); transition: transform 0.18s ease, box-shadow 0.18s ease;
+      display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;
+    }
+    .student-card:hover { transform: translateY(-4px); box-shadow: 0 12px 26px rgba(15,23,42,0.1); border-color: #bfdbfe; }
+    .student-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .avatar {
+      width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, #dbeafe, #fef3c7);
+      border: 2px solid var(--primary-light); display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1.2rem; color: var(--primary); overflow: hidden; flex-shrink: 0;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .student-name { font-size: 1.08rem; font-weight: 800; color: var(--text); }
+    .student-tag { display: inline-block; background: #eff6ff; color: var(--primary); font-size: 0.78rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin-top: 3px; }
+    .student-quote { font-size: 0.88rem; color: #475569; font-style: italic; margin-bottom: 12px; background: #f8fafc; padding: 9px 11px; border-radius: 10px; border-right: 3px solid var(--accent); }
+    .student-footer { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: var(--muted); padding-top: 8px; border-top: 1px solid #f1f5f9; }
+
+    /* Inbal Featured Card */
+    .inbal-hero {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 2px solid #f59e0b; border-radius: 20px; padding: 24px; margin-bottom: 22px;
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.14);
+    }
+    .inbal-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .inbal-title { display: flex; align-items: center; gap: 12px; }
+    .inbal-crown { width: 54px; height: 54px; border-radius: 50%; background: #f59e0b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; }
+    .inbal-body { font-size: 1rem; color: #1e293b; white-space: pre-line; line-height: 1.7; background: rgba(255,255,255,0.75); padding: 16px; border-radius: 14px; }
+
+    /* Generic Cards */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .card {
+      background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);
+      padding: 20px; box-shadow: var(--shadow);
+    }
+    .card h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 10px; }
+
+    /* Polls */
+    .poll-option {
+      display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: 11px; margin-bottom: 8px; background: #f8fafc;
+    }
+    .poll-option button { background: #e0e7ff; color: var(--primary); padding: 5px 12px; font-size: 0.82rem; }
+    .poll-option button:hover { background: var(--primary); color: #fff; }
+
+    /* Sticky Notes Wall */
+    .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 16px; }
+    .sticky-note {
+      padding: 16px; border-radius: 14px; box-shadow: 0 6px 14px rgba(0,0,0,0.07);
+      transform: rotate(-0.6deg); border: 1px solid rgba(0,0,0,0.06);
+    }
+    .sticky-note:nth-child(even) { transform: rotate(0.7deg); }
+    .note-yellow { background: #fef9c3; }
+    .note-blue { background: #dbeafe; }
+    .note-pink { background: #fce7f3; }
+    .note-green { background: #dcfce7; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 900;
+      display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 22px; max-width: 620px; width: 100%; max-height: 90vh;
+      overflow-y: auto; padding: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.3); position: relative;
+    }
+    .modal-close {
+      position: absolute; top: 16px; left: 16px; width: 34px; height: 34px; border-radius: 50%;
+      background: #f1f5f9; color: #334155; font-size: 1.1rem;
+    }
+    .dedication-item {
+      background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;
+      padding: 11px 14px; margin-bottom: 8px;
+    }
+    .dedication-meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+
+    /* Admin & Code block */
+    pre.code-box {
+      background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 12px; font-size: 0.78rem;
+      overflow-x: auto; direction: ltr; text-align: left; max-height: 240px; margin: 10px 0;
+    }
+    .btn-sm { padding: 8px 14px; font-size: 0.86rem; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-amber { background: var(--accent); color: #0f172a; }
+    .btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
+    .status-banner {
+      padding: 10px 14px; border-radius: 11px; font-size: 0.88rem; font-weight: 600;
+      background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; margin-bottom: 14px;
+    }
+
+    @media print {
+      header, .nav-wrap, .toolbar, button, #loginScreen, .modal-backdrop { display: none !important; }
+      .tab-panel { display: block !important; page-break-after: always; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login / First-Time Global Password Modal -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-emblem" id="loginLogoPreview">🎓</div>
+      <h1>ספר מחזור דיגיטלי - כיתה ו'2</h1>
+      <p class="sub">בית ספר דקל, רעננה • מחזור תשפ"ז (2027)</p>
+
+      <div class="field-group">
+        <label for="loginUserSelect">מי נכנס/ת לספר המחזור?</label>
+        <select id="loginUserSelect"></select>
+      </div>
+
+      <div class="field-group" id="customNameWrap" style="display:none;">
+        <label for="loginCustomName">הקלד/י שם מלא:</label>
+        <input type="text" id="loginCustomName" placeholder="לדוגמה: משפחת כהן / מורה מקצועית" />
+      </div>
+
+      <div class="field-group">
+        <label for="loginPasswordInput">ססמת כיתה (נדרשת פעם אחת בלבד):</label>
+        <input type="password" id="loginPasswordInput" placeholder="הקלד/י את ססמת הכיתה" onkeydown="if(event.key==='Enter') handleLogin()" />
+      </div>
+
+      <button class="btn-primary" onclick="handleLogin()">כניסה לספר המחזור ✨</button>
+      <div class="error-msg" id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <button class="school-logo-btn" onclick="triggerLogoUpload()" title="לחץ להעלאת סמל בית ספר דקל">
+          <span id="headerLogoContent">🏫</span>
+          <span class="hint">סמל</span>
+        </button>
+        <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoFile(event)" />
+        <div class="brand-text">
+          <h1 id="mainTitle">ספר מחזור דיגיטלי • כיתה ו'2</h1>
+          <div class="subtitle" id="subTitle">בית ספר דקל, רעננה • מחזור תשפ"ז • מחנכת ומנהלת: ענבל</div>
+        </div>
+      </div>
+
+      <div class="user-pill">
+        <span>שלום, <strong id="currentUserLabel">אורח</strong></span>
+        <span id="currentRoleBadge" class="badge-gold" style="display:none;"></span>
+        <button class="btn-ghost-light" onclick="logoutUser()">החלף משתמש</button>
+      </div>
+    </div>
+
+    <div class="nav-wrap">
+      <button class="tab-btn active" data-tab="students" onclick="switchTab('students')">🎓 התלמידים שלנו (30)</button>
+      <button class="tab-btn" data-tab="teachers" onclick="switchTab('teachers')">👑 חדר מורים וענבל</button>
+      <button class="tab-btn" data-tab="memories" onclick="switchTab('memories')">📸 קיר זיכרונות</button>
+      <button class="tab-btn" data-tab="polls" onclick="switchTab('polls')">🏆 סקר הכי-הכי</button>
+      <button class="tab-btn" data-tab="wall" onclick="switchTab('wall')">✍️ לוח חתימות</button>
+      <button class="tab-btn" data-tab="admin" onclick="openAdminTab()">⚙️ הגדרות ו-Google Sheets</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="syncStatusBar" class="status-banner" style="display:none;"></div>
+
+    <!-- TAB 1: STUDENTS -->
+    <section id="tab-students" class="tab-panel active">
+      <div class="toolbar">
+        <div class="search-box">
+          <input type="text" id="studentSearch" placeholder="חיפוש תלמיד/ה לפי שם, תחביב או חלום..." oninput="renderStudents()" />
+        </div>
+        <div class="chips" id="interestChips"></div>
+      </div>
+      <div class="students-grid" id="studentsGrid"></div>
+    </section>
+
+    <!-- TAB 2: TEACHERS & INBAL -->
+    <section id="tab-teachers" class="tab-panel">
+      <div class="inbal-hero">
+        <div class="inbal-header">
+          <div class="inbal-title">
+            <div class="inbal-crown">👑</div>
+            <div>
+              <h2 style="color:#92400e; font-size:1.3rem;">ענבל — מחנכת כיתה ו'2 ומנהלת בית ספר דקל</h2>
+              <div style="font-size:0.86rem; color:#b45309; font-weight:600;">דבר המחנכת ומנהלת בית הספר לבוגרי מחזור תשפ"ז</div>
+            </div>
+          </div>
+          <button class="btn-sm btn-amber" onclick="editInbalGreeting()">✏️ ערוך ברכה</button>
+        </div>
+        <div class="inbal-body" id="inbalGreetingText"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px;">
+        <h3>🍎 הוספת ברכה מצוות ההוראה / הורים</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:10px;">
+          <input type="text" id="teacherNameInput" placeholder="שם המורה / איש הצוות" style="padding:10px; border:1px solid var(--border); border-radius:10px;" />
+          <input type="text" id="teacherRoleInput" placeholder="תפקיד (למשל: מורה לאנגלית / ספורט)" style="padding:10px; border:1px solid var(--border); border-radius:10px;" />
+        </div>
+        <textarea id="teacherMsgInput" rows="3" placeholder="כתבו ברכה מרגשת לבוגרי כיתה ו'2..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:10px; margin-bottom:10px;"></textarea>
+        <button class="btn-sm btn-primary" style="width:auto;" onclick="addTeacherBlessing()">פרסם ברכה בחדר המורים</button>
+      </div>
+
+      <div class="grid-2" id="teachersGrid"></div>
+    </section>
+
+    <!-- TAB 3: MEMORIES -->
+    <section id="tab-memories" class="tab-panel">
+      <div class="card" style="margin-bottom:18px;">
+        <h3>📸 הוספת רגע בלתי נשכח מכיתה ו'2</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:10px;">
+          <input type="text" id="memTitleInput" placeholder="כותרת האירוע (למשל: טיול שנתי / מסיבת סיום)" style="padding:10px; border:1px solid var(--border); border-radius:10px;" />
+          <input type="text" id="memDateInput" placeholder="מתי זה קרה? (למשל: מאי 2027)" style="padding:10px; border:1px solid var(--border); border-radius:10px;" />
+        </div>
+        <textarea id="memDescInput" rows="2" placeholder="ספרו מה היה מצחיק או מרגש..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:10px; margin-bottom:10px;"></textarea>
+        <button class="btn-sm btn-primary" style="width:auto;" onclick="addMemory()">הוסף לקיר הזיכרונות</button>
+      </div>
+      <div class="grid-2" id="memoriesGrid"></div>
+    </section>
+
+    <!-- TAB 4: POLLS -->
+    <section id="tab-polls" class="tab-panel">
+      <div class="grid-2" id="pollsGrid"></div>
+    </section>
+
+    <!-- TAB 5: SIGNATURES WALL -->
+    <section id="tab-wall" class="tab-panel">
+      <div class="card">
+        <h3>✍️ השאירו חתימה והקדשה לכל הכיתה</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+          <select id="noteColorSelect" style="padding:10px; border:1px solid var(--border); border-radius:10px;">
+            <option value="note-yellow">פתק צהוב ☀️</option>
+            <option value="note-blue">פתק כחול 🌊</option>
+            <option value="note-pink">פתק ורוד 🌸</option>
+            <option value="note-green">פתק ירוק 🌿</option>
+          </select>
+          <input type="text" id="wallMsgInput" placeholder="כתבו ברכה, בדיחה פנימית או איחול לחטיבה..." style="flex:1; min-width:220px; padding:10px; border:1px solid var(--border); border-radius:10px;" />
+          <button class="btn-sm btn-primary" style="width:auto;" onclick="addWallNote()">הדבק ללוח 📌</button>
+        </div>
+      </div>
+      <div class="notes-grid" id="wallNotesGrid"></div>
+    </section>
+
+    <!-- TAB 6: ADMIN & GOOGLE SHEETS -->
+    <section id="tab-admin" class="tab-panel">
+      <div class="grid-2">
+        <div class="card">
+          <h3>☁️ חיבור מסד נתונים Google Sheets</h3>
+          <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+            הדביקו את כתובת ה-Web App של Google Apps Script כדי לסנכרן את כל הנתונים בזמן אמת לכל ההורים והילדים.
+          </p>
+          <div class="field-group">
+            <label>כתובת Google Apps Script Web App (/exec):</label>
+            <input type="text" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" style="direction:ltr; text-align:left;" />
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
+            <button class="btn-sm btn-primary" style="width:auto;" onclick="saveGasUrl()">שמור כתובת</button>
+            <button class="btn-sm btn-success" onclick="pushAllToSheet()">🚀 העלה והגדר את כל הגיליון אוטומטית</button>
+            <button class="btn-sm btn-outline" onclick="pullFromSheet()">🔄 רענן נתונים מה-Sheet</button>
+          </div>
+          <hr style="border:none; border-top:1px solid var(--border); margin:14px 0;" />
+          <h4 style="margin-bottom:6px;">קוד Apps Script מוכן להדבקה (Code.gs):</h4>
+          <button class="btn-sm btn-amber" onclick="copyAppsScript()">📋 העתק קוד Apps Script ללוח</button>
+          <pre class="code-box" id="gasCodePreview"></pre>
+        </div>
+
+        <div class="card">
+          <h3>🏫 ניהול סמל בית הספר, גיבוי והדפסה</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+            <button class="btn-sm btn-primary" style="width:auto;" onclick="triggerLogoUpload()">🖼️ העלה סמל בית ספר דקל</button>
+            <button class="btn-sm btn-outline" onclick="removeSchoolLogo()">הסר סמל</button>
+            <button class="btn-sm btn-outline" onclick="window.print()">🖨️ הדפס / שמור כ-PDF</button>
+          </div>
+
+          <h4 style="margin-bottom:8px;">➕ הוספת תלמיד/ה חדש/ה לכיתה:</h4>
+          <div style="display:grid; gap:8px; margin-bottom:14px;">
+            <input type="text" id="newStuName" placeholder="שם מלא של התלמיד/ה" style="padding:9px; border:1px solid var(--border); border-radius:9px;" />
+            <input type="text" id="newStuInterest" placeholder="תחום עניין עיקרי (למשל: כדורגל / ציור / גיימינג)" style="padding:9px; border:1px solid var(--border); border-radius:9px;" />
+            <input type="text" id="newStuDream" placeholder="חלום לעתיד" style="padding:9px; border:1px solid var(--border); border-radius:9px;" />
+            <input type="text" id="newStuQuote" placeholder="משפט אופייני / מוטו" style="padding:9px; border:1px solid var(--border); border-radius:9px;" />
+            <button class="btn-sm btn-success" onclick="addNewStudent()">הוסף תלמיד/ה</button>
+          </div>
+
+          <hr style="border:none; border-top:1px solid var(--border); margin:14px 0;" />
+          <h4 style="margin-bottom:8px;">💾 גיבוי ושחזור קובץ JSON:</h4>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-sm btn-outline" onclick="exportJsonBackup()">ייצוא גיבוי JSON</button>
+            <button class="btn-sm btn-outline" onclick="document.getElementById('importJsonInput').click()">ייבוא גיבוי JSON</button>
+            <input type="file" id="importJsonInput" accept=".json" style="display:none" onchange="importJsonBackup(event)" />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Student Detail & Dedications Modal -->
+  <div class="modal-backdrop" id="studentModal" onclick="if(event.target===this) closeStudentModal()">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeStudentModal()">✕</button>
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+        <div class="avatar" id="modalAvatar" style="width:72px; height:72px; font-size:1.5rem;"></div>
+        <div>
+          <h2 id="modalStuName" style="color:var(--primary);"></h2>
+          <span class="student-tag" id="modalStuInterest"></span>
+          <div style="margin-top:6px;">
+            <button class="btn-sm btn-outline" style="padding:4px 10px; font-size:0.78rem;" onclick="document.getElementById('stuPhotoInput').click()">📷 העלה תמונת פרופיל</button>
+            <input type="file" id="stuPhotoInput" accept="image/*" style="display:none" onchange="handleStudentPhoto(event)" />
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#f8fafc; padding:12px 14px; border-radius:12px; margin-bottom:14px; border:1px solid var(--border);">
+        <div style="margin-bottom:6px;"><strong>🌟 חלום לעתיד:</strong> <span id="modalStuDream"></span></div>
+        <div><strong>💬 מוטו / משפט אופייני:</strong> <span id="modalStuQuote"></span></div>
+      </div>
+
+      <h3 style="font-size:1rem; margin-bottom:8px;">💌 הקדשות מחברים ומהצוות (<span id="modalDedCount">0</span>)</h3>
+      <div id="modalDedicationsList" style="max-height:220px; overflow-y:auto; margin-bottom:12px;"></div>
+
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="newDedicationInput" placeholder="כתבו הקדשה אישית..." style="flex:1; padding:10px; border:1.5px solid var(--border); border-radius:10px;" onkeydown="if(event.key==='Enter') submitDedication()" />
+        <button class="btn-sm btn-primary" style="width:auto;" onclick="submitDedication()">שלח הקדשה</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // הדביקו כאן את כתובת ה-Web App של Google Apps Script לאחר הפריסה כדי שכל הכיתה תתחבר אוטומטית:
+    const DEFAULT_GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxaHkxyQvPHPRZovOTsLwVTbJGh75IsUsKJXbmGcZPUD9RI0Q0K1iWwW4IsPkniK6VYDw/exec";
+
+    const CLASS_PASS = "DEKEL2027";
+    const ADMIN_PASS = "eo1976";
+    const STORAGE_KEY = "dekel_vav2_yearbook_v5";
+    const AUTH_KEY = "dekel_vav2_auth_v5";
+
+    const INITIAL_STUDENTS = [
+      { id: "s01", name: "שירה", interest: "ריקוד ומוזיקה", dream: "כוריאוגרפית בינלאומית", quote: "תמיד עם חיוך ואנרגיה טובה!", photo: "" },
+      { id: "s02", name: "אמה לכמן", interest: "אמנות ועיצוב", dream: "מעצבת אופנה ואדריכלית", quote: "הדמיון הוא הגבול היחיד.", photo: "" },
+      { id: "s03", name: "אברהם אידי", interest: "ספורט וכדורגל", dream: "שחקן בליגת האלופות", quote: "אף פעם לא מוותר על המגרש.", photo: "" },
+      { id: "s04", name: "בר", interest: "שחייה וים", dream: "מדריכת גלישה וביולוגית ימית", quote: "החיים יפים יותר ליד הים.", photo: "" },
+      { id: "s05", name: "תמר רונה לב", interest: "קריאה וכתיבה", dream: "סופרת ועיתונאית", quote: "כל יום הוא פרק חדש בסיפור.", photo: "" },
+      { id: "s06", name: "קים זלגלר", interest: "מוזיקה וגיטרה", dream: "מוזיקאית ויוצרת", quote: "מוזיקה מחברת בין כולם.", photo: "" },
+      { id: "s07", name: "אריאל קשביץ", interest: "מדעים וטכנולוגיה", dream: "מדען חלל ומהנדס", quote: "סקרנות מובילה לתגליות גדולות.", photo: "" },
+      { id: "s08", name: "גפן אופק אהרון", interest: "תיאטרון ומשחק", dream: "שחקנית קולנוע ותיאטרון", quote: "כל העולם במה!", photo: "" },
+      { id: "s09", name: "אמילי", interest: "אפייה ובישול", dream: "שפית קונדיטורית", quote: "החיים מתוקים יותר עם עוגה טובה.", photo: "" },
+      { id: "s10", name: "אורייאן", interest: "כדורסל ואתלטיקה", dream: "שחקן NBA", quote: "תמיד מכוון הכי גבוה שאפשר.", photo: "" },
+      { id: "s11", name: "ליבי", interest: "בעלי חיים וטבע", dream: "וטרינרית", quote: "אהבה לכל יצור חי.", photo: "" },
+      { id: "s12", name: "אריאל כרמלי", interest: "גיימינג ותכנות", dream: "מפתח משחקי מחשב", quote: "תמיד בשלב הבא.", photo: "" },
+      { id: "s13", name: "עומר ברוך", interest: "כדורגל וריצה", dream: "מאמן כושר וספורטאי", quote: "עבודה קשה מנצחת הכל.", photo: "" },
+      { id: "s14", name: "יואב", interest: "רובוטיקה והנדסה", dream: "ממציא ומהנדס רובוטים", quote: "אם אפשר לחלום את זה, אפשר לבנות את זה.", photo: "" },
+      { id: "s15", name: "ליהי אוזל", interest: "ציור, ריקוד ועיצוב", dream: "מעצבת גרפית ויוצרת", quote: "צבע ויצירתיות בכל רגע.", photo: "" },
+      { id: "s16", name: "הילה דבורקין", interest: "התעמלות וריקוד", dream: "מאמנת התעמלות אמנותית", quote: "גמישות, התמדה וחיוך.", photo: "" },
+      { id: "s17", name: "איתן", interest: "שחמט ואסטרטגיה", dream: "יזם הייטק", quote: "חושב תמיד שלושה צעדים קדימה.", photo: "" },
+      { id: "s18", name: "איירין", interest: "שפות וטיולים", dream: "שגרירה וטיילת מסביב לעולם", quote: "העולם מלא במקומות לגלות.", photo: "" },
+      { id: "s19", name: "אריאל סגל", interest: "מוזיקה ותופים", dream: "מתופף בהרכב רוק", quote: "הקצב בלב.", photo: "" },
+      { id: "s20", name: "איתמר", interest: "כדורסל וטניס", dream: "טניסאי מקצועי", quote: "כל נקודה חשובה.", photo: "" },
+      { id: "s21", name: "דגן", interest: "טבע וטיולים", dream: "מדריך טיולים וצלם טבע", quote: "הכי כיף בשטח.", photo: "" },
+      { id: "s22", name: "נגה לונדון", interest: "שירה ונגינה", dream: "זמרת ויוצרת", quote: "לשיר מכל הלב.", photo: "" },
+      { id: "s23", name: "רונה", interest: "אמנות וצילום", dream: "צלמת אמנותית", quote: "לתפוס את הרגע המושלם.", photo: "" },
+      { id: "s24", name: "רתם", interest: "ספורט ורכיבה", dream: "רוכבת אופניים אולימפית", quote: "קדימה בכל הכוח!", photo: "" },
+      { id: "s25", name: "ורוניקה אדמנקל", interest: "ציור ואנימציה", dream: "אנימטורית בדיסני/פיקסאר", quote: "להפיח חיים בציורים.", photo: "" },
+      { id: "s26", name: "שקד", interest: "מדעים וכימיה", dream: "חוקרת רפואה", quote: "לשאול למה ולגלות איך.", photo: "" },
+      { id: "s27", name: "גפן פרי", interest: "ריקוד והתעמלות", dream: "רקדנית מקצועית", quote: "לרקוד כאילו אף אחד לא מסתכל.", photo: "" },
+      { id: "s28", name: "ירדן לירן אוסקר", interest: "גיימינג ומוזיקה", dream: "מפיק מוזיקלי", quote: "וייב טוב תמיד.", photo: "" },
+      { id: "s29", name: "הראל מונטג'", interest: "כדורגל וסטטיסטיקה", dream: "פרשן ספורט ומהנדס", quote: "יודע כל תוצאה וכל שיא.", photo: "" },
+      { id: "s30", name: "אדם אוזל", interest: "גיימינג, רובלוקס ותכנות", dream: "מפתח משחקים ויוצר AI", quote: "תמיד בונה את העולם הבא!", photo: "" }
+    ];
+
+    const DEFAULT_STATE = {
+      settings: {
+        title: "ספר מחזור דיגיטלי • כיתה ו'2",
+        subtitle: "בית ספר דקל, רעננה • מחזור תשפ\"ז • מחנכת ומנהלת: ענבל",
+        schoolLogo: "",
+        inbalGreeting: "תלמידות ותלמידים יקרים שלי,\n\nהזכות ללוות אתכם כמחנכת כיתה ו'2 וכמנהלת בית ספר דקל היא מתנה אמיתית. ראיתי אתכם צומחים, מתבגרים, תומכים זה בזה ומגלים סקרנות, יצירתיות ולב ענק.\n\nאתם יוצאים לדרך חדשה בחטיבת הביניים — תאמינו בעצמכם, תמשיכו לחלום בגדול, ותזכרו שבית ספר דקל תמיד יהיה הבית שלכם.\n\nאוהבת וגאה בכם מאוד,\nענבל 👑"
+      },
+      students: INITIAL_STUDENTS,
+      dedications: [
+        { id: "d1", studentId: "s30", author: "ענבל", role: "מחנכת ו'2 ומנהלת בית הספר", text: "אדם היקר, היצירתיות והסקרנות הטכנולוגית שלך מעוררות השראה. בהצלחה ענקית בחטיבה!", date: "תשפ\"ז" },
+        { id: "d2", studentId: "s15", author: "ענבל", role: "מחנכת ו'2 ומנהלת בית הספר", text: "ליהי היקרה, הלב הרחב והכישרון האמנותי שלך מאירים את כל הכיתה. גאה בך!", date: "תשפ\"ז" }
+      ],
+      teachers: [
+        { id: "t1", name: "צוות המורים המקצועיים", role: "בית ספר דקל, רעננה", text: "בוגרי ו'2 היקרים, היה תענוג ללמד אתכם! מאחלים לכם הצלחה רבה, חברויות אמת והגשמת כל החלומות." }
+      ],
+      memories: [
+        { id: "m1", title: "הטיול השנתי של שכבת ו'", date: "אביב תשפ\"ז", desc: "מסלולים, צחוקים באוטובוס, ערב הווי בלתי נשכח וגיבוש כיתתי מדהים!", likes: 18 },
+        { id: "m2", title: "יום ספורט והפסקות פעילות בדקל", date: "תשפ\"ז", desc: "כיתה ו'2 מעודדת בקולי קולות ומובילה ברוח ספורטיבית אמיתית.", likes: 15 }
+      ],
+      polls: [
+        { id: "p1", question: "מי הכי מצחיק/ה בכיתה?", options: [{ label: "הראל מונטג'", votes: 4 }, { label: "אדם אוזל", votes: 4 }, { label: "גפן אופק אהרון", votes: 4 }] },
+        { id: "p2", question: "מי יהיה/תהיה מפורסם/ת יום אחד?", options: [{ label: "שירה", votes: 5 }, { label: "אריאל קשביץ", votes: 4 }, { label: "נגה לונדון", votes: 4 }] },
+        { id: "p3", question: "מי תמיד עוזר/ת לכולם?", options: [{ label: "ליהי אוזל", votes: 5 }, { label: "תמר רונה לב", votes: 4 }, { label: "איתן", votes: 4 }] },
+        { id: "p4", question: "אלוף/ת הספורט של ו'2?", options: [{ label: "אברהם אידי", votes: 5 }, { label: "אורייאן", votes: 4 }, { label: "רתם", votes: 4 }] }
+      ],
+      signatures: [
+        { id: "w1", author: "ענבל", role: "מחנכת ו'2 ומנהלת בית הספר", color: "note-yellow", text: "כיתה ו'2 אלופים שלי — תודה על שנה מרגשת ובלתי נשכחת! 👑" },
+        { id: "w2", author: "ועד ההורים ו'2", role: "הורי הכיתה", color: "note-blue", text: "גאים בכם ילדים אהובים! בהצלחה בדרך החדשה בחטיבה 🎓" }
+      ]
+    };
+
+    const GAS_SCRIPT_SOURCE = `const SHEET_TABS = ['Settings', 'Students', 'Dedications', 'Teachers', 'Memories', 'Polls', 'Signatures'];
+const ADMIN_SECRET = 'eo1976';
+
+function doGet(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const result = {};
+  SHEET_TABS.forEach(name => {
+    const sh = ss.getSheetByName(name);
+    if (!sh) { result[name] = []; return; }
+    const rows = sh.getDataRange().getValues();
+    if (rows.length <= 1) { result[name] = []; return; }
+    const headers = rows[0];
+    result[name] = rows.slice(1).map(r => {
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = r[i]);
+      return obj;
+    });
+  });
+  return ContentService.createTextOutput(JSON.stringify({ ok: true, data: result }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const payload = JSON.parse(e.postData.contents || '{}');
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  if (payload.action === 'initAll') {
+    if (payload.adminPass !== ADMIN_SECRET) {
+      return jsonOut({ ok: false, error: 'Unauthorized' });
+    }
+    const d = payload.data;
+    writeTab(ss, 'Settings', ['key', 'value'], Object.entries(d.settings).map(([k, v]) => [k, v]));
+    writeTab(ss, 'Students', ['id', 'name', 'interest', 'dream', 'quote', 'photo'],
+      d.students.map(s => [s.id, s.name, s.interest, s.dream, s.quote, s.photo || '']));
+    writeTab(ss, 'Dedications', ['id', 'studentId', 'author', 'role', 'text', 'date'],
+      d.dedications.map(x => [x.id, x.studentId, x.author, x.role || '', x.text, x.date || '']));
+    writeTab(ss, 'Teachers', ['id', 'name', 'role', 'text'],
+      d.teachers.map(x => [x.id, x.name, x.role, x.text]));
+    writeTab(ss, 'Memories', ['id', 'title', 'date', 'desc', 'likes'],
+      d.memories.map(x => [x.id, x.title, x.date, x.desc, x.likes || 0]));
+    writeTab(ss, 'Polls', ['id', 'question', 'optionsJson'],
+      d.polls.map(x => [x.id, x.question, JSON.stringify(x.options)]));
+    writeTab(ss, 'Signatures', ['id', 'author', 'role', 'color', 'text'],
+      d.signatures.map(x => [x.id, x.author, x.role || '', x.color, x.text]));
+    return jsonOut({ ok: true });
+  }
+
+  if (payload.action === 'appendRow') {
+    const sh = ss.getSheetByName(payload.tab);
+    if (sh) sh.appendRow(payload.row);
+    return jsonOut({ ok: true });
+  }
+
+  return jsonOut({ ok: false, error: 'Unknown action' });
+}
+
+function writeTab(ss, name, headers, rows) {
+  let sh = ss.getSheetByName(name);
+  if (!sh) sh = ss.insertSheet(name);
+  sh.clearContents();
+  sh.appendRow(headers);
+  if (rows && rows.length) {
+    sh.getRange(2, 1, rows.length, headers.length).setValues(rows);
+  }
+}
+
+function jsonOut(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}`;
+
+    let state = loadState();
+    let auth = loadAuth();
+    let selectedInterest = "הכל";
+    let activeStudentId = null;
+
+    function safeGetStorage(key) {
+      try { return localStorage.getItem(key); } catch (e) { return null; }
+    }
+    function safeSetStorage(key, val) {
+      try { localStorage.setItem(key, val); } catch (e) {}
+    }
+
+    function loadState() {
+      const raw = safeGetStorage(STORAGE_KEY);
+      if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+      try {
+        const parsed = JSON.parse(raw);
+        return Object.assign({}, DEFAULT_STATE, parsed, {
+          settings: Object.assign({}, DEFAULT_STATE.settings, parsed.settings || {})
+        });
+      } catch (e) {
+        return JSON.parse(JSON.stringify(DEFAULT_STATE));
+      }
+    }
+
+    function saveState() {
+      safeSetStorage(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadAuth() {
+      const raw = safeGetStorage(AUTH_KEY);
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch (e) { return null; }
+    }
+
+    function saveAuth(data) {
+      auth = data;
+      if (data) safeSetStorage(AUTH_KEY, JSON.stringify(data));
+      else { try { localStorage.removeItem(AUTH_KEY); } catch (e) {} }
+    }
+
+    function initApp() {
+      populateLoginDropdown();
+      document.getElementById("gasCodePreview").textContent = GAS_SCRIPT_SOURCE;
+      document.getElementById("gasUrlInput").value = getGasUrl();
+
+      if (auth && auth.unlocked) {
+        document.getElementById("loginScreen").classList.add("hidden");
+      }
+      renderAll();
+      if (getGasUrl()) pullFromSheet(true);
+    }
+
+    function populateLoginDropdown() {
+      const sel = document.getElementById("loginUserSelect");
+      sel.innerHTML = "";
+      const optInbal = document.createElement("option");
+      optInbal.value = "INBAL";
+      optInbal.textContent = "👑 ענבל — מחנכת ו'2 ומנהלת בית הספר";
+      sel.appendChild(optInbal);
+
+      state.students.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = "STU:" + s.name;
+        opt.textContent = "🎓 " + s.name;
+        sel.appendChild(opt);
+      });
+
+      const optOther = document.createElement("option");
+      optOther.value = "CUSTOM";
+      optOther.textContent = "✍️ שם אחר (הורה / מורה מקצועי/ת)";
+      sel.appendChild(optOther);
+
+      sel.onchange = () => {
+        document.getElementById("customNameWrap").style.display = sel.value === "CUSTOM" ? "block" : "none";
+      };
+    }
+
+    function handleLogin() {
+      const selVal = document.getElementById("loginUserSelect").value;
+      const customName = document.getElementById("loginCustomName").value.trim();
+      const pass = document.getElementById("loginPasswordInput").value.trim();
+      const err = document.getElementById("loginError");
+
+      if (pass !== CLASS_PASS && pass !== ADMIN_PASS) {
+        err.textContent = "ססמא שגויה. נסו שוב או פנו לוועד הכיתה.";
+        return;
+      }
+
+      let name = "אורח";
+      let role = "";
+      if (selVal === "INBAL") {
+        name = "ענבל";
+        role = "👑 מחנכת ו'2 ומנהלת בית הספר";
+      } else if (selVal.startsWith("STU:")) {
+        name = selVal.slice(4);
+      } else {
+        if (!customName) {
+          err.textContent = "אנא הקלידו שם מלא.";
+          return;
+        }
+        name = customName;
+      }
+
+      const isAdmin = (pass === ADMIN_PASS);
+      if (isAdmin && !role) role = "מנהל ספר מחזור";
+
+      saveAuth({ unlocked: true, name, role, isAdmin });
+      err.textContent = "";
+      document.getElementById("loginScreen").classList.add("hidden");
+      renderAll();
+    }
+
+    function logoutUser() {
+      saveAuth(null);
+      document.getElementById("loginPasswordInput").value = "";
+      document.getElementById("loginScreen").classList.remove("hidden");
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === "tab-" + tabId));
+    }
+
+    function openAdminTab() {
+      if (auth && auth.isAdmin) {
+        switchTab("admin");
+        return;
+      }
+      const pwd = prompt("הזן ססמת מנהל לפתיחת ההגדרות:");
+      if (pwd === ADMIN_PASS) {
+        if (auth) {
+          auth.isAdmin = true;
+          if (!auth.role) auth.role = "מנהל ספר מחזור";
+          saveAuth(auth);
+        }
+        renderHeader();
+        switchTab("admin");
+      } else if (pwd !== null) {
+        alert("ססמת מנהל שגויה.");
+      }
+    }
+
+    function renderAll() {
+      renderHeader();
+      renderInterestChips();
+      renderStudents();
+      renderTeachers();
+      renderMemories();
+      renderPolls();
+      renderWall();
+    }
+
+    function renderHeader() {
+      document.getElementById("mainTitle").textContent = state.settings.title;
+      document.getElementById("subTitle").textContent = state.settings.subtitle;
+
+      const logoEl = document.getElementById("headerLogoContent");
+      const loginLogoEl = document.getElementById("loginLogoPreview");
+      if (state.settings.schoolLogo) {
+        logoEl.innerHTML = `<img src="${state.settings.schoolLogo}" alt="סמל דקל" />`;
+        loginLogoEl.innerHTML = `<img src="${state.settings.schoolLogo}" alt="סמל דקל" />`;
+      } else {
+        logoEl.textContent = "🏫";
+        loginLogoEl.textContent = "🎓";
+      }
+
+      if (auth) {
+        document.getElementById("currentUserLabel").textContent = auth.name;
+        const badge = document.getElementById("currentRoleBadge");
+        if (auth.role) {
+          badge.textContent = auth.role;
+          badge.style.display = "inline-block";
+        } else {
+          badge.style.display = "none";
+        }
+      }
+    }
+
+    function triggerLogoUpload() {
+      document.getElementById("logoFileInput").click();
+    }
+
+    function handleLogoFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      resizeImageToDataUrl(file, 220, (dataUrl) => {
+        state.settings.schoolLogo = dataUrl;
+        saveState();
+        renderHeader();
+        showBanner("סמל בית ספר דקל עודכן בהצלחה!");
+      });
+    }
+
+    function removeSchoolLogo() {
+      state.settings.schoolLogo = "";
+      saveState();
+      renderHeader();
+    }
+
+    function resizeImageToDataUrl(file, maxSize, callback) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let w = img.width, h = img.height;
+          if (w > h && w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; }
+          else if (h >= w && h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; }
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+          callback(canvas.toDataURL("image/png", 0.85));
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderInterestChips() {
+      const categories = ["הכל", "ספורט", "מוזיקה וריקוד", "אמנות ועיצוב", "מדעים וגיימינג"];
+      const wrap = document.getElementById("interestChips");
+      wrap.innerHTML = "";
+      categories.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.className = "chip" + (selectedInterest === cat ? " active" : "");
+        btn.textContent = cat;
+        btn.onclick = () => { selectedInterest = cat; renderInterestChips(); renderStudents(); };
+        wrap.appendChild(btn);
+      });
+    }
+
+    function matchesCategory(interest, cat) {
+      if (cat === "הכל") return true;
+      if (cat === "ספורט") return /ספורט|כדורגל|כדורסל|שחייה|טניס|ריצה|רכיבה|התעמלות/.test(interest);
+      if (cat === "מוזיקה וריקוד") return /מוזיקה|ריקוד|גיטרה|שירה|תופים/.test(interest);
+      if (cat === "אמנות ועיצוב") return /אמנות|ציור|עיצוב|תיאטרון|צילום|אנימציה|קריאה/.test(interest);
+      if (cat === "מדעים וגיימינג") return /מדעים|גיימינג|תכנות|רובוטיקה|שחמט|רובלוקס/.test(interest);
+      return true;
+    }
+
+    function renderStudents() {
+      const q = document.getElementById("studentSearch").value.trim().toLowerCase();
+      const grid = document.getElementById("studentsGrid");
+      grid.innerHTML = "";
+
+      const filtered = state.students.filter(s => {
+        const matchQ = !q || s.name.toLowerCase().includes(q) || s.interest.toLowerCase().includes(q) || s.dream.toLowerCase().includes(q);
+        return matchQ && matchesCategory(s.interest, selectedInterest);
+      });
+
+      filtered.forEach(s => {
+        const dedCount = state.dedications.filter(d => d.studentId === s.id).length;
+        const card = document.createElement("div");
+        card.className = "student-card";
+        card.onclick = () => openStudentModal(s.id);
+        const initials = s.name.split(" ").map(p => p[0]).join("").slice(0, 2);
+        const avatarHtml = s.photo ? `<img src="${s.photo}" alt="${s.name}" />` : initials;
+
+        card.innerHTML = `
+          <div>
+            <div class="student-top">
+              <div class="avatar">${avatarHtml}</div>
+              <div>
+                <div class="student-name">${escapeHtml(s.name)}</div>
+                <span class="student-tag">${escapeHtml(s.interest)}</span>
+              </div>
+            </div>
+            <div class="student-quote">"${escapeHtml(s.quote)}"</div>
+          </div>
+          <div class="student-footer">
+            <span>🌟 ${escapeHtml(s.dream)}</span>
+            <strong>💌 ${dedCount}</strong>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openStudentModal(id) {
+      activeStudentId = id;
+      const s = state.students.find(x => x.id === id);
+      if (!s) return;
+      const initials = s.name.split(" ").map(p => p[0]).join("").slice(0, 2);
+      document.getElementById("modalAvatar").innerHTML = s.photo ? `<img src="${s.photo}" alt="${s.name}" />` : initials;
+      document.getElementById("modalStuName").textContent = s.name;
+      document.getElementById("modalStuInterest").textContent = s.interest;
+      document.getElementById("modalStuDream").textContent = s.dream;
+      document.getElementById("modalStuQuote").textContent = s.quote;
+      renderModalDedications();
+      document.getElementById("studentModal").classList.add("open");
+    }
+
+    function closeStudentModal() {
+      document.getElementById("studentModal").classList.remove("open");
+      activeStudentId = null;
+    }
+
+    function handleStudentPhoto(e) {
+      const file = e.target.files[0];
+      if (!file || !activeStudentId) return;
+      resizeImageToDataUrl(file, 260, (dataUrl) => {
+        const s = state.students.find(x => x.id === activeStudentId);
+        if (s) {
+          s.photo = dataUrl;
+          saveState();
+          openStudentModal(activeStudentId);
+          renderStudents();
+        }
+      });
+    }
+
+    function renderModalDedications() {
+      const list = state.dedications.filter(d => d.studentId === activeStudentId);
+      document.getElementById("modalDedCount").textContent = list.length;
+      const wrap = document.getElementById("modalDedicationsList");
+      if (!list.length) {
+        wrap.innerHTML = `<div style="color:var(--muted); font-size:0.88rem; padding:8px;">עדיין אין הקדשות — היו הראשונים לכתוב!</div>`;
+        return;
+      }
+      wrap.innerHTML = list.map(d => `
+        <div class="dedication-item">
+          <div class="dedication-meta">
+            <span>${escapeHtml(d.author)} ${d.role ? `<span class="badge-gold">${escapeHtml(d.role)}</span>` : ""}</span>
+            <span style="color:var(--muted); font-weight:400;">${escapeHtml(d.date || "")}</span>
+          </div>
+          <div style="font-size:0.92rem;">${escapeHtml(d.text)}</div>
+        </div>
+      `).join("");
+    }
+
+    function submitDedication() {
+      const input = document.getElementById("newDedicationInput");
+      const text = input.value.trim();
+      if (!text || !activeStudentId) return;
+      const item = {
+        id: "d_" + Date.now(),
+        studentId: activeStudentId,
+        author: auth ? auth.name : "חבר/ה מהכיתה",
+        role: auth ? auth.role : "",
+        text,
+        date: new Date().toLocaleDateString("he-IL")
+      };
+      state.dedications.unshift(item);
+      saveState();
+      input.value = "";
+      renderModalDedications();
+      renderStudents();
+      appendToSheet("Dedications", [item.id, item.studentId, item.author, item.role, item.text, item.date]);
+    }
+
+    function renderTeachers() {
+      document.getElementById("inbalGreetingText").textContent = state.settings.inbalGreeting;
+      const grid = document.getElementById("teachersGrid");
+      grid.innerHTML = state.teachers.map(t => `
+        <div class="card">
+          <h3>🍎 ${escapeHtml(t.name)}</h3>
+          <div style="font-size:0.84rem; color:var(--muted); margin-bottom:8px;">${escapeHtml(t.role)}</div>
+          <p style="font-size:0.95rem; white-space:pre-line;">${escapeHtml(t.text)}</p>
+        </div>
+      `).join("");
+    }
+
+    function editInbalGreeting() {
+      const updated = prompt("עדכון ברכתה של ענבל (מחנכת ו'2 ומנהלת בית הספר):", state.settings.inbalGreeting);
+      if (updated !== null && updated.trim()) {
+        state.settings.inbalGreeting = updated.trim();
+        saveState();
+        renderTeachers();
+      }
+    }
+
+    function addTeacherBlessing() {
+      const name = document.getElementById("teacherNameInput").value.trim() || (auth ? auth.name : "");
+      const role = document.getElementById("teacherRoleInput").value.trim() || "צוות חינוכי";
+      const text = document.getElementById("teacherMsgInput").value.trim();
+      if (!name || !text) return alert("אנא מלאו שם וברכה.");
+      const item = { id: "t_" + Date.now(), name, role, text };
+      state.teachers.unshift(item);
+      saveState();
+      document.getElementById("teacherNameInput").value = "";
+      document.getElementById("teacherRoleInput").value = "";
+      document.getElementById("teacherMsgInput").value = "";
+      renderTeachers();
+      appendToSheet("Teachers", [item.id, item.name, item.role, item.text]);
+    }
+
+    function renderMemories() {
+      const grid = document.getElementById("memoriesGrid");
+      grid.innerHTML = state.memories.map(m => `
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3 style="margin:0;">${escapeHtml(m.title)}</h3>
+            <span class="student-tag">${escapeHtml(m.date)}</span>
+          </div>
+          <p style="font-size:0.94rem; color:#334155; margin-bottom:12px;">${escapeHtml(m.desc)}</p>
+          <button class="btn-sm btn-outline" onclick="likeMemory('${m.id}')">❤️ אהבתי (${m.likes || 0})</button>
+        </div>
+      `).join("");
+    }
+
+    function addMemory() {
+      const title = document.getElementById("memTitleInput").value.trim();
+      const date = document.getElementById("memDateInput").value.trim() || "תשפ\"ז";
+      const desc = document.getElementById("memDescInput").value.trim();
+      if (!title || !desc) return alert("אנא מלאו כותרת ותיאור.");
+      const item = { id: "m_" + Date.now(), title, date, desc, likes: 1 };
+      state.memories.unshift(item);
+      saveState();
+      document.getElementById("memTitleInput").value = "";
+      document.getElementById("memDateInput").value = "";
+      document.getElementById("memDescInput").value = "";
+      renderMemories();
+      appendToSheet("Memories", [item.id, item.title, item.date, item.desc, item.likes]);
+    }
+
+    function likeMemory(id) {
+      const m = state.memories.find(x => x.id === id);
+      if (m) { m.likes = (m.likes || 0) + 1; saveState(); renderMemories(); }
+    }
+
+    function renderPolls() {
+      const grid = document.getElementById("pollsGrid");
+      grid.innerHTML = state.polls.map(p => `
+        <div class="card">
+          <h3>🏆 ${escapeHtml(p.question)}</h3>
+          ${p.options.map((opt, idx) => `
+            <div class="poll-option">
+              <span><strong>${escapeHtml(opt.label)}</strong> (${opt.votes} קולות)</span>
+              <button onclick="votePoll('${p.id}', ${idx})">הצבע +1</button>
+            </div>
+          `).join("")}
+        </div>
+      `).join("");
+    }
+
+    function votePoll(pollId, optIdx) {
+      const p = state.polls.find(x => x.id === pollId);
+      if (p && p.options[optIdx]) {
+        p.options[optIdx].votes += 1;
+        saveState();
+        renderPolls();
+      }
+    }
+
+    function renderWall() {
+      const grid = document.getElementById("wallNotesGrid");
+      grid.innerHTML = state.signatures.map(w => `
+        <div class="sticky-note ${w.color || 'note-yellow'}">
+          <div style="font-size:0.95rem; margin-bottom:10px; font-weight:500;">"${escapeHtml(w.text)}"</div>
+          <div style="font-size:0.82rem; font-weight:800; color:#1e293b;">
+            — ${escapeHtml(w.author)} ${w.role ? `<span class="badge-gold">${escapeHtml(w.role)}</span>` : ""}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function addWallNote() {
+      const color = document.getElementById("noteColorSelect").value;
+      const text = document.getElementById("wallMsgInput").value.trim();
+      if (!text) return;
+      const item = {
+        id: "w_" + Date.now(),
+        author: auth ? auth.name : "אורח",
+        role: auth ? auth.role : "",
+        color,
+        text
+      };
+      state.signatures.unshift(item);
+      saveState();
+      document.getElementById("wallMsgInput").value = "";
+      renderWall();
+      appendToSheet("Signatures", [item.id, item.author, item.role, item.color, item.text]);
+    }
+
+    function addNewStudent() {
+      const name = document.getElementById("newStuName").value.trim();
+      const interest = document.getElementById("newStuInterest").value.trim() || "חברים וכיף";
+      const dream = document.getElementById("newStuDream").value.trim() || "להצליח בגדול";
+      const quote = document.getElementById("newStuQuote").value.trim() || "תמיד עם חיוך!";
+      if (!name) return alert("יש להזין שם מלא.");
+      const item = { id: "s_" + Date.now(), name, interest, dream, quote, photo: "" };
+      state.students.push(item);
+      saveState();
+      populateLoginDropdown();
+      renderStudents();
+      ["newStuName", "newStuInterest", "newStuDream", "newStuQuote"].forEach(id => document.getElementById(id).value = "");
+      appendToSheet("Students", [item.id, item.name, item.interest, item.dream, item.quote, ""]);
+      showBanner(`התלמיד/ה ${name} נוסף/ה בהצלחה!`);
+    }
+
+    /* Google Sheets Sync Helpers */
+    function getGasUrl() {
+      return safeGetStorage("dekel_gas_url") || DEFAULT_GAS_WEB_APP_URL;
+    }
+
+    function saveGasUrl() {
+      const url = document.getElementById("gasUrlInput").value.trim();
+      safeSetStorage("dekel_gas_url", url);
+      showBanner("כתובת ה-Google Apps Script נשמרה.");
+    }
+
+    function copyAppsScript() {
+      navigator.clipboard.writeText(GAS_SCRIPT_SOURCE).then(() => {
+        showBanner("קוד Apps Script הועתק ללוח!");
+      });
+    }
+
+    async function pushAllToSheet() {
+      const url = getGasUrl();
+      if (!url) return alert("אנא הדביקו קודם את כתובת ה-Web App URL.");
+      showBanner("מעלה ומגדיר את כל 7 הטאבים ב-Google Sheets...");
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          body: JSON.stringify({ action: "initAll", adminPass: ADMIN_PASS, data: state })
+        });
+        const json = await res.json();
+        if (json.ok) showBanner("✅ כל הנתונים (30 התלמידים, ברכת ענבל, סקרים וחתימות) הועלו ל-Google Sheet!");
+        else showBanner("⚠️ שגיאה בהעלאה: " + (json.error || ""));
+      } catch (err) {
+        showBanner("⚠️ לא ניתן להתחבר ל-URL. ודאו שהפריסה מוגדרת כ-Anyone.");
+      }
+    }
+
+    async function appendToSheet(tab, row) {
+      const url = getGasUrl();
+      if (!url) return;
+      try {
+        await fetch(url, {
+          method: "POST",
+          body: JSON.stringify({ action: "appendRow", tab, row })
+        });
+      } catch (e) {}
+    }
+
+    async function pullFromSheet(silent) {
+      const url = getGasUrl();
+      if (!url) return;
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        if (!json.ok || !json.data) return;
+        const d = json.data;
+        if (d.Settings && d.Settings.length) {
+          d.Settings.forEach(r => { if (r.key) state.settings[r.key] = r.value; });
+        }
+        if (d.Students && d.Students.length) state.students = d.Students;
+        if (d.Dedications && d.Dedications.length) state.dedications = d.Dedications.slice().reverse();
+        if (d.Teachers && d.Teachers.length) state.teachers = d.Teachers.slice().reverse();
+        if (d.Memories && d.Memories.length) state.memories = d.Memories.slice().reverse();
+        if (d.Signatures && d.Signatures.length) state.signatures = d.Signatures.slice().reverse();
+        saveState();
+        populateLoginDropdown();
+        renderAll();
+        if (!silent) showBanner("✅ הנתונים סונכרנו בהצלחה מ-Google Sheets!");
+      } catch (e) {
+        if (!silent) showBanner("⚠️ שגיאה בטעינה מ-Google Sheets.");
+      }
+    }
+
+    function exportJsonBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "dekel-vav2-yearbook-backup.json";
+      a.click();
+    }
+
+    function importJsonBackup(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          state = JSON.parse(ev.target.result);
+          saveState();
+          renderAll();
+          showBanner("הגיבוי שוחזר בהצלחה!");
+        } catch (err) {
+          alert("קובץ JSON לא תקין.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function showBanner(msg) {
+      const bar = document.getElementById("syncStatusBar");
+      bar.textContent = msg;
+      bar.style.display = "block";
+      setTimeout(() => { bar.style.display = "none"; }, 4500);
+    }
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/[&<>"']/g, m => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[m]));
+    }
+
+    initApp();
+  </script>
+</body>
+</html>
