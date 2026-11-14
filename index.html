@@ -278,7 +278,7 @@
     </div>
 
     <div class="nav-wrap">
-      <button class="tab-btn active" data-tab="students" onclick="switchTab('students')">🎓 התלמידים שלנו (30)</button>
+      <button class="tab-btn active" data-tab="students" onclick="switchTab('students')">🎓 התלמידים שלנו (<span id="studentCountBadge">30</span>)</button>
       <button class="tab-btn" data-tab="teachers" onclick="switchTab('teachers')">👑 חדר מורים וענבל</button>
       <button class="tab-btn" data-tab="memories" onclick="switchTab('memories')">📸 קיר זיכרונות</button>
       <button class="tab-btn" data-tab="polls" onclick="switchTab('polls')">🏆 סקר הכי-הכי</button>
@@ -835,6 +835,8 @@ function jsonOut(obj) {
     }
 
     function renderStudents() {
+      const badgeEl = document.getElementById("studentCountBadge");
+      if (badgeEl) badgeEl.textContent = state.students.length;
       const q = document.getElementById("studentSearch").value.trim().toLowerCase();
       const grid = document.getElementById("studentsGrid");
       grid.innerHTML = "";
